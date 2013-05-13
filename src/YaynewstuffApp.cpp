@@ -1,4 +1,4 @@
-
+#include <cinder/gl/Fbo.h>
 #include "ParticleController.h"
 
 
@@ -13,62 +13,24 @@ public:
 	void prepareSettings(Settings *settings);
 	void mouseDown(MouseEvent event);	
 	void mouseUp(MouseEvent event);	
-	void keyDown(KeyEvent event);
+	void keyUp(KeyEvent event);
 	void mouseMove(MouseEvent event);
 	void mouseDrag( MouseEvent event);
 	void update();
 	void draw();
 protected:
-	Channel32f chan;
 	ParticleController parts;
-	Vec2f mousePos, mouseVel;
-	Perlin _perlin;
-	gl::Texture myText;
-
+	Vec2f mousePos, mouseVel, test;
+	gl::Fbo mainFBO;
+	Particle *lol;
 	bool isMouseDown;
-
-	void getRandomPic();
+	bool pause;
 	
 };
 
-void YaynewstuffApp::getRandomPic() {
-	console() << "Finding valid image" << endl;
-	srand(time(NULL));
-	bool exit = false;
-
-	while (!exit) {
-		string lol = "http://i.imgur.com/";
-		//int times = rand() % 4 + 6;
-		for (int i = 0; i < 5; i++) {
-			switch (rand() % 3) {
-				case 0: {
-					lol += (char)(rand() % 10 + 48);
-					break;
-				} case 1: {
-					lol += (char)(rand() % 26 + 65);
-					break;
-				} case 2: {
-					lol += (char)(rand() % 26 + 97);
-					break;
-				}
-				default: break;
-			}
-		}
-		lol += ".jpg";
-		console() << "New URL: " << lol << endl;
-		exit = true;
-		try {
-			myText = gl::Texture(loadImage(loadUrl(lol)));
-			setWindowSize(myText.getWidth(), myText.getHeight());
-		}
-		catch( ... ) {
-			console() << "Failed to load" << std::endl;
-			exit = false;
-		}
-	}
-}
-void YaynewstuffApp::keyDown(KeyEvent event) {
-
+void YaynewstuffApp::keyUp(KeyEvent event) {
+	if (event.getCode() == KeyEvent::KEY_SPACE) 
+		pause = !pause;
 }
 
 void YaynewstuffApp::mouseDrag( MouseEvent event ) {
@@ -83,10 +45,9 @@ void YaynewstuffApp::mouseMove(MouseEvent event) {
 
 void YaynewstuffApp::setup()
 {
-	_perlin = Perlin();
+	mainFBO = gl::Fbo(800,600);
 	isMouseDown = false;
-	//Url url( "http://www.flight404.com/_images/paris.jpg");
-	//chan = Channel32f(loadImage(loadUrl(url)));
+	pause = false;
 }
 
 void YaynewstuffApp::prepareSettings(Settings *settings){
@@ -96,32 +57,49 @@ void YaynewstuffApp::prepareSettings(Settings *settings){
 
 void YaynewstuffApp::mouseDown(MouseEvent event)
 {
-	//getRandomPic();
-	isMouseDown = true;
+	if (event.isLeft()) {
+		if (!isMouseDown) 
+			lol = parts.getParticle(mousePos);
+		isMouseDown = true;
+	
+	}
 }
 
 void YaynewstuffApp::mouseUp(MouseEvent event)
 {
-	getRandomPic();
-	isMouseDown = false;
+	if (event.isLeft()) {
+		if (isMouseDown) {
+			parts.resetTar();
+			lol = NULL;
+		}
+		isMouseDown = false;
+
+	}
+	if (!lol)
+		parts.addParticles(mousePos);
 }
 
 void YaynewstuffApp::update()
 {
-//	parts.update(mousePos, chan, _perlin);
-//	if(isMouseDown)
-//		parts.addParticles(5, mousePos, mouseVel);
+	if (isMouseDown)
+		parts.update(pause, test);	
+	else
+		parts.update(pause);	
+
+
 }
 
 
 void YaynewstuffApp::draw()
 {
+	mainFBO.bindFramebuffer();
 	gl::clear();
 
-	if (myText)
-		gl::draw(myText, getWindowBounds());
+	parts.draw();
 
-//	parts.draw();
+	mainFBO.unbindFramebuffer();
+	gl::draw(mainFBO.getTexture());
+
 }
 
 CINDER_APP_NATIVE(YaynewstuffApp, RendererGl)
