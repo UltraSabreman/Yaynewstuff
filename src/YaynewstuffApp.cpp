@@ -1,52 +1,36 @@
 #include <cinder/gl/Fbo.h>
 #include "ParticleController.h"
 
-
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
 
 class YaynewstuffApp : public AppNative {
 public:
 	void setup();
 	void prepareSettings(Settings *settings);
-	void mouseDown(MouseEvent event);	
-	void mouseUp(MouseEvent event);	
-	void keyUp(KeyEvent event);
-	void mouseMove(MouseEvent event);
-	void mouseDrag( MouseEvent event);
+
+	//Pass all input to input class to be handed there.
+	void mouseDown(MouseEvent event) { mainIO.mouseDown(event); }	
+	void mouseUp(MouseEvent event) { mainIO.mouseUp(event); }	
+	void keyUp(KeyEvent event) { mainIO.keyUp(event); }
+	void keyDown(KeyEvent event) { mainIO.keyDown(event); }
+	void mouseMove(MouseEvent event) { mainIO.mouseMove(event); }
+	void mouseDrag( MouseEvent event) { mainIO.mouseDrag(event); }
+
 	void update();
 	void draw();
 protected:
 	ParticleController parts;
-	Vec2f mousePos, mouseVel, test;
 	gl::Fbo mainFBO;
-	Particle *lol;
-	bool isMouseDown;
+
+	Input mainIO;
 	bool pause;
-	
 };
-
-void YaynewstuffApp::keyUp(KeyEvent event) {
-	if (event.getCode() == KeyEvent::KEY_SPACE) 
-		pause = !pause;
-}
-
-void YaynewstuffApp::mouseDrag( MouseEvent event ) {
-	mouseMove(event);
-}
-
-void YaynewstuffApp::mouseMove(MouseEvent event) {
-	Vec2f newPos = event.getPos();
-	mouseVel = newPos - mousePos;
-	mousePos = newPos;
-}
 
 void YaynewstuffApp::setup()
 {
 	mainFBO = gl::Fbo(800,600);
-	isMouseDown = false;
 	pause = false;
 }
 
@@ -55,38 +39,26 @@ void YaynewstuffApp::prepareSettings(Settings *settings){
 	settings->setFrameRate(60.0f);
 }
 
-void YaynewstuffApp::mouseDown(MouseEvent event)
-{
-	if (event.isLeft()) {
-		if (!isMouseDown) 
-			lol = parts.getParticle(mousePos);
-		isMouseDown = true;
-	
-	}
-}
-
-void YaynewstuffApp::mouseUp(MouseEvent event)
-{
-	if (event.isLeft()) {
-		if (isMouseDown) {
-			parts.resetTar();
-			lol = NULL;
-		}
-		isMouseDown = false;
-
-	}
-	if (!lol)
-		parts.addParticles(mousePos);
-}
-
 void YaynewstuffApp::update()
 {
-	if (isMouseDown)
-		parts.update(pause, test);	
-	else
+	if (mainIO.wasKeyPressed(KeyEvent::KEY_SPACE))
+		pause = !pause;
+
+	if (mainIO.wasMKeyPressed(MouseEvent::RIGHT_DOWN))
+		parts.getParticle(mainIO.getFboPos());
+
+	if (mainIO.wasMKeyReleased(MouseEvent::RIGHT_DOWN))
+		parts.resetTar();
+
+	if (mainIO.isMKeyPressed(MouseEvent::RIGHT_DOWN)) {
+		parts.update(pause, mainIO.getFboPos());	
+	} else
 		parts.update(pause);	
 
+	
 
+	if (mainIO.wasMKeyPressed(MouseEvent::LEFT_DOWN))
+		parts.addParticle(mainIO.getFboPos());
 }
 
 
@@ -98,7 +70,9 @@ void YaynewstuffApp::draw()
 	parts.draw();
 
 	mainFBO.unbindFramebuffer();
+
 	gl::draw(mainFBO.getTexture());
+	
 
 }
 

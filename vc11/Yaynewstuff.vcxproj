@@ -111,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
+    <ClInclude Include="..\src\input.h" />
     <ClInclude Include="..\src\Particle.h" />
     <ClInclude Include="..\src\ParticleController.h" />
   </ItemGroup>

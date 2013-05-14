@@ -35,6 +35,9 @@
     <ClInclude Include="..\src\ParticleController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">
