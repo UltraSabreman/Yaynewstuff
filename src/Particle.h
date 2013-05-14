@@ -1,13 +1,16 @@
 #include "cinder/app/AppNative.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Path2d.h"
+#include "cinder\Utilities.h"
+#include "cinder\Font.h"
 //#include "cinder/ImageIo.h"
-//#include "cinder/gl/Texture.h"
+#include "cinder/gl/Texture.h"
 #include "cinder/Rand.h"
 #include "input.h"
 
 #define CIRCLE_DETAIL 50
 #define MASS_TO_RAD 1
+#define PI 3.14159
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -15,33 +18,41 @@ using namespace std;
 
 class Particle {
 public:
-	Particle(Vec2f pos, float mass = 1000, Vec2f vel = Vec2f(0,0), Vec2f force = Vec2f(0,0)) {
+	Particle(Vec2f pos, float mass = 500, Vec2f vel = Vec2f(0,0), Vec2f force = Vec2f(0,0)) {
 		_pos = pos;
 		_vel = vel;
 		_col = hsvToRGB(Vec3f(Rand::randFloat(), 1.0, 1.0));
 		_mass = mass;
-		_radius = log(_mass);
+		_radius = (pow(_mass, 1.0/3.0)/1) * (3.0/4.0) * PI;//log(_mass);
 		_force = force;
 		_accel = Vec2f(0.0,0.0);
 		_path.moveTo(_pos);
+		_fbo = gl::Fbo(800,600);
+		_oldPos = pos;
 	}
 	void update(bool Paused) {
-		_path.lineTo(_pos);
 		_accel = (_force / _mass);
-		_radius = log(_mass);
+		_radius = (pow(_mass, 1.0/3.0)/1) * (3.0/4.0) * PI; //log(_mass);
 		if (!Paused) {
+			_oldPos = _pos;
 			_vel += _accel;
 			_pos += _vel;
 		}
+		if (_pos.distance(_oldPos) >= 0.5)//sd
+			_path.lineTo(_pos);
+
 	}
 
 	void draw(bool test) {
 		gl::color(_col);
-		gl::drawSolidCircle(_pos, _radius, CIRCLE_DETAIL);
+		gl::drawSolidCircle(_pos, _radius);
 		gl::draw(_path);
-		if (test) 
+		//gl::drawStringCentered(toString(_mass), _pos, Color(1.0, 0.0, 0.0), Font("Arial", 12));
+		if (test) {
+			gl::color(Color(1.0, 1.0, 1.0));
 			gl::drawLine(_pos, _pos + _vel * 10);
-		
+			gl::drawStrokedCircle(_pos, _radius+10);
+		}
 	}
 
 	bool isColliding(Particle *part2) {
@@ -68,11 +79,13 @@ public:
 	float getMass() { return _mass; }
 
 	float _radius;
-	Vec2f _vel, _accel, _force;
+	Vec2f _vel, _accel, _force, _oldPos;
 protected:
 	Vec2f _pos; //not public because we need to constrain it.
 	Color _col;
 	float _mass;
 	Path2d _path;
+
+	gl::Fbo _fbo;
 };
 

@@ -1,6 +1,6 @@
 #include <cinder/gl/Fbo.h>
 #include "ParticleController.h"
-#include "cinder\Utilities.h"
+
 #define SAMPLES 100
 
 using namespace ci;
@@ -19,12 +19,13 @@ public:
 	void keyDown(KeyEvent event) { mainIO.keyDown(event); }
 	void mouseMove(MouseEvent event) { mainIO.mouseMove(event); }
 	void mouseDrag( MouseEvent event) { mainIO.mouseDrag(event); }
+	void mouseWheel(MouseEvent event) { mainIO.mouseWheel(event); }
 
 	void update();
 	void draw();
 protected:
 	ParticleController parts;
-	gl::Fbo mainFBO;
+	Font myFont;
 
 	Input mainIO;
 	bool pause;
@@ -35,15 +36,17 @@ protected:
 		float total = 0; 
 		for (int i = 0; i < SAMPLES; i++) 
 			total += test[i];
-		return (total / SAMPLES);
+		return (1 / (total / SAMPLES));
 	}
 };
 
 void YaynewstuffApp::setup()
-{
-	mainFBO = gl::Fbo(800,600);
+{	
+	myFont = Font("Arial", 12);
 	pause = false;
 	index = 0;
+
+	parts = ParticleController(&mainIO);
 
 	for (int i = 0; i < SAMPLES; i++)
 		test[i] = 0;
@@ -60,35 +63,31 @@ void YaynewstuffApp::update()
 		pause = !pause;
 
 	if (mainIO.wasMKeyPressed(MouseEvent::RIGHT_DOWN))
-		parts.getParticle(mainIO.getFboPos());
+		 parts.getParticle(mainIO.getMousePos());
 
-	if (mainIO.wasMKeyReleased(MouseEvent::RIGHT_DOWN))
+	if (mainIO.wasMKeyReleased(MouseEvent::RIGHT_DOWN)){
 		parts.resetTar();
+	}
 
 	if (mainIO.isMKeyPressed(MouseEvent::RIGHT_DOWN)) {
-		parts.update(pause, mainIO.getFboPos());	
+		parts.update(pause, mainIO.getMousePos());	
 	} else
-		//for (int i = 0; i < 1000; i++)
-			parts.update(pause);		
+		parts.update(pause);
+
+	parts.test(mainIO.getWheelSpin());
 
 	if (mainIO.wasMKeyPressed(MouseEvent::LEFT_DOWN))
-		parts.addParticle(mainIO.getFboPos());
+		parts.addParticle(mainIO.getMousePos());
 }
 
 
 void YaynewstuffApp::draw()
 {
 	float start = clock();
-	mainFBO.bindFramebuffer();
-	gl::clear(Color(0.0,0.0,0.0), true);
-
+	gl::clear();
 	parts.draw();
-	
 
-	mainFBO.unbindFramebuffer();
-
-	gl::draw(mainFBO.getTexture());
-	gl::drawString("FPS: " + toString(getFps()), Vec2f(0,0), Color(1.0, 1.0, 1.0));
+	gl::drawString("FPS: " + toString(getFps()), Vec2f(0,0), Color(1.0, 1.0, 1.0), myFont);
 	test[index++] = ((clock() - start) / CLOCKS_PER_SEC);
 	if (index == 100) index = 0;
 

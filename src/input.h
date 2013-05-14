@@ -14,6 +14,7 @@ public:
 	void mouseUp(MouseEvent event);	
 	void mouseMove(MouseEvent event);
 	void mouseDrag(MouseEvent event);
+	void mouseWheel(MouseEvent event);
 	
 	void keyUp(KeyEvent event);
 	void keyDown(KeyEvent event);
@@ -26,6 +27,8 @@ public:
 	bool wasMKeyReleased(int key);
 	bool isMKeyPressed(int key);
 
+	float getWheelSpin();
+
 	Vec2f getMousePos() { return _mousePos; }
 	Vec2f getMouseVel() { return _mouseVel; }
 	Vec2f getFboPos() { return _fboPos; }
@@ -33,9 +36,11 @@ public:
 protected:
 	Vec2f _mousePos, _mouseVel, _fboPos;
 	bool _onScreen;
+	float _wheel;
 
 	vector<vector<bool>> _kbKeys;
 	vector<vector<bool>> _mKeys;
+
 
 	int getMouseButton(MouseEvent event);
 
@@ -69,6 +74,8 @@ Input::Input() {
 		for (int l = 0; l < 3; l++)
 			_mKeys[i][l] = false;
 	}
+
+	_wheel = 0;
 }
 
 void Input::keyDown(KeyEvent event) {
@@ -98,6 +105,10 @@ void Input::mouseUp(MouseEvent event) {
 	if (code == -1) return;
 	_mKeys[code][0] = false;
 	_mKeys[code][2] = true;
+}
+
+void Input::mouseWheel(MouseEvent event) {
+	_wheel = event.getWheelIncrement();
 }
 
 void Input::mouseDrag( MouseEvent event ) {
@@ -164,4 +175,10 @@ bool Input::wasMKeyReleased(int key) {
 	}
 
 	return out;
+}
+
+float Input::getWheelSpin() { 
+	float t = _wheel;
+	_wheel = 0; 
+	return t; 
 }

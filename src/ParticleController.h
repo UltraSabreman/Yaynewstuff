@@ -3,17 +3,22 @@
 //This is in m^3/(kg*s^2)
 #define G_ 6.67384e-11 
 //This modifier makes the force actualy noticble.
-#define FORCE_MUL 1e4
+#define FORCE_MUL 1e6
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
 class ParticleController {
 public:
-	ParticleController();
+	ParticleController(Input *l = NULL);
 	void update(bool pausePhysics, Vec2f newPos = Vec2f(0,0));
 	void draw();
 	void drawPaths();
+
+	void test(float w) {
+		if (_target) 
+			_target->setMass(_target->getMass() + (w * (_mainIO->isKeyPressed(KeyEvent::KEY_LSHIFT) ? 100 : 10)));
+	}
 
 	void addParticle(Vec2f pos);
 
@@ -24,12 +29,14 @@ public:
 protected:
 	vector<Particle> _particles;
 	Particle *_target;
+	Input *_mainIO;
 
 	void eraseParticle(int loc);
 };
 
-ParticleController::ParticleController() {
+ParticleController::ParticleController(Input *l) {
 	_target = NULL;
+	_mainIO = l;
 }
 
 void ParticleController::update(bool pausePhysics, Vec2f newPos) {
