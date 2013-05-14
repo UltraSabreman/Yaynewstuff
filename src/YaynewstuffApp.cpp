@@ -1,5 +1,7 @@
 #include <cinder/gl/Fbo.h>
 #include "ParticleController.h"
+#include "cinder\Utilities.h"
+#define SAMPLES 100
 
 using namespace ci;
 using namespace ci::app;
@@ -26,12 +28,25 @@ protected:
 
 	Input mainIO;
 	bool pause;
+
+	float test[SAMPLES];
+	int index;
+	float getFps() {
+		float total = 0; 
+		for (int i = 0; i < SAMPLES; i++) 
+			total += test[i];
+		return (total / SAMPLES);
+	}
 };
 
 void YaynewstuffApp::setup()
 {
 	mainFBO = gl::Fbo(800,600);
 	pause = false;
+	index = 0;
+
+	for (int i = 0; i < SAMPLES; i++)
+		test[i] = 0;
 }
 
 void YaynewstuffApp::prepareSettings(Settings *settings){
@@ -53,9 +68,8 @@ void YaynewstuffApp::update()
 	if (mainIO.isMKeyPressed(MouseEvent::RIGHT_DOWN)) {
 		parts.update(pause, mainIO.getFboPos());	
 	} else
-		parts.update(pause);	
-
-	
+		//for (int i = 0; i < 1000; i++)
+			parts.update(pause);		
 
 	if (mainIO.wasMKeyPressed(MouseEvent::LEFT_DOWN))
 		parts.addParticle(mainIO.getFboPos());
@@ -64,15 +78,19 @@ void YaynewstuffApp::update()
 
 void YaynewstuffApp::draw()
 {
+	float start = clock();
 	mainFBO.bindFramebuffer();
-	gl::clear();
+	gl::clear(Color(0.0,0.0,0.0), true);
 
 	parts.draw();
+	
 
 	mainFBO.unbindFramebuffer();
 
 	gl::draw(mainFBO.getTexture());
-	
+	gl::drawString("FPS: " + toString(getFps()), Vec2f(0,0), Color(1.0, 1.0, 1.0));
+	test[index++] = ((clock() - start) / CLOCKS_PER_SEC);
+	if (index == 100) index = 0;
 
 }
 

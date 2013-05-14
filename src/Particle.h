@@ -3,9 +3,10 @@
 #include "cinder/Path2d.h"
 //#include "cinder/ImageIo.h"
 //#include "cinder/gl/Texture.h"
+#include "cinder/Rand.h"
 #include "input.h"
 
-#define CIRCLE_DETAIL 7
+#define CIRCLE_DETAIL 50
 #define MASS_TO_RAD 1
 using namespace ci;
 using namespace ci::app;
@@ -14,10 +15,10 @@ using namespace std;
 
 class Particle {
 public:
-	Particle(Vec2f pos, float mass = 50000, Vec2f vel = Vec2f(0,0), Vec2f force = Vec2f(0,0)) {
+	Particle(Vec2f pos, float mass = 1000, Vec2f vel = Vec2f(0,0), Vec2f force = Vec2f(0,0)) {
 		_pos = pos;
 		_vel = vel;
-		_col = Color(1.0f, 1.0f, 1.0f);//hsvToRGB(Vec3f(Rand::randFloat(), 1.0, 1.0));
+		_col = hsvToRGB(Vec3f(Rand::randFloat(), 1.0, 1.0));
 		_mass = mass;
 		_radius = log(_mass);
 		_force = force;
