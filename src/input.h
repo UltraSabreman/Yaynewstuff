@@ -1,6 +1,6 @@
 #include <cinder/app/AppNative.h>
 #define KB_KEYS 350
-#define M_KEYS 4
+#define M_KEYS 5
 
 using namespace ci;
 using namespace ci::app;

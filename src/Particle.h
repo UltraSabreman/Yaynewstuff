@@ -11,6 +11,7 @@
 #define CIRCLE_DETAIL 50
 #define MASS_TO_RAD 1
 #define PI 3.14159
+#define DENCITY 1
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -29,16 +30,20 @@ public:
 		_path.moveTo(_pos);
 		_fbo = gl::Fbo(800,600);
 		_oldPos = pos;
+		test = false;
 	}
 	void update(bool Paused) {
-		_accel = (_force / _mass);
-		_radius = (pow(_mass, 1.0/3.0)/1) * (3.0/4.0) * PI; //log(_mass);
+		_radius = (pow(_mass, 1.0/3.0)/DENCITY) * (3.0/4.0) * PI; //log(_mass);
 		if (!Paused) {
+			_accel = (_force / _mass);
+			//_vel += _accel;
+			//_pos += _vel;
+			_vel = (_pos - _oldPos);
+			Vec2f newPos = _pos + _vel + _accel;
 			_oldPos = _pos;
-			_vel += _accel;
-			_pos += _vel;
+			_pos = newPos;
 		}
-		if (_pos.distance(_oldPos) >= 0.5)//sd
+		if (_pos.distance(_oldPos) >= 0.5)//sds
 			_path.lineTo(_pos);
 
 	}
@@ -50,7 +55,7 @@ public:
 		//gl::drawStringCentered(toString(_mass), _pos, Color(1.0, 0.0, 0.0), Font("Arial", 12));
 		if (test) {
 			gl::color(Color(1.0, 1.0, 1.0));
-			gl::drawLine(_pos, _pos + _vel * 10);
+			gl::drawLine(_pos, _pos + _force/10);
 			gl::drawStrokedCircle(_pos, _radius+10);
 		}
 	}
@@ -80,6 +85,7 @@ public:
 
 	float _radius;
 	Vec2f _vel, _accel, _force, _oldPos;
+	bool test;
 protected:
 	Vec2f _pos; //not public because we need to constrain it.
 	Color _col;

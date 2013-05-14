@@ -25,7 +25,8 @@ public:
 	Particle* getParticle(Vec2f pos);
 
 	void resetTar();
-	void removeParticles (int num);
+	void removeParticle(Particle *tar);
+	void removeAllParticles();
 protected:
 	vector<Particle> _particles;
 	Particle *_target;
@@ -33,6 +34,10 @@ protected:
 
 	void eraseParticle(int loc);
 };
+
+void ParticleController::removeAllParticles() {
+	_particles.clear();
+}
 
 ParticleController::ParticleController(Input *l) {
 	_target = NULL;
@@ -84,11 +89,13 @@ void ParticleController::update(bool pausePhysics, Vec2f newPos) {
 			}
 
 			AvgForce *= FORCE_MUL; // to amke teh force actualy noticible.
-
-			if (size > 1) 
-				part1->_force = (AvgForce / (size - 1));
-			else
-				part1->_force = Vec2f(0.0,0.0);
+			if (!part1->test) {
+				if (size > 1) 
+					part1->_force = (AvgForce / (size - 1));
+				else
+					part1->_force = Vec2f(0.0,0.0);
+			}else
+				part1->test = false;
 				
 		}
 	}
@@ -99,8 +106,9 @@ void ParticleController::update(bool pausePhysics, Vec2f newPos) {
 		Particle *part1 = &_particles[i];
 
 		if (part1 == _target) {
-			part1->_force = Vec2f(0,0);
-			part1->_vel = (newPos - part1->getPos()) / 10;// / part1->getMass();
+			part1->_force = (newPos - part1->getPos()) * 10;
+			part1->test = true;
+			
 		}
 		part1->update(pausePhysics);
 	}
@@ -137,9 +145,11 @@ Particle* ParticleController::getParticle(Vec2f pos) {
 	}
 }
 
-void ParticleController::removeParticles (int num) {
-	for (int i = 0; i < num; i++)
-		_particles.pop_back();
+void ParticleController::removeParticle(Particle *tar) {
+	int size = _particles.size();
+	for (int i = 0; i < size; i++)
+		if (&_particles[i] == tar)
+			eraseParticle(i);
 }
 
 void ParticleController::resetTar() { _target = NULL; }

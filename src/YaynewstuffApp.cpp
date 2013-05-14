@@ -78,6 +78,11 @@ void YaynewstuffApp::update()
 
 	if (mainIO.wasMKeyPressed(MouseEvent::LEFT_DOWN))
 		parts.addParticle(mainIO.getMousePos());
+	if (mainIO.wasMKeyPressed(MouseEvent::MIDDLE_DOWN))
+		parts.removeParticle(parts.getParticle(mainIO.getMousePos()));
+
+	if (mainIO.wasKeyPressed(KeyEvent::KEY_RETURN))
+		parts.removeAllParticles();
 }
 
 
