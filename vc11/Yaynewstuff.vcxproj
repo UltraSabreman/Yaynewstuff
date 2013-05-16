@@ -107,6 +107,8 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\input.cpp" />
+    <ClCompile Include="..\src\ParticleController.cpp" />
     <ClCompile Include="..\src\YaynewstuffApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +116,9 @@
     <ClInclude Include="..\src\input.h" />
     <ClInclude Include="..\src\Particle.h" />
     <ClInclude Include="..\src\ParticleController.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\Particle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

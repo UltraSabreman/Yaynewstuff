@@ -1,4 +1,5 @@
-#include <cinder/gl/Fbo.h>
+#include <cinder\gl\Texture.h>
+#include <cinder\Font.h>
 #include "ParticleController.h"
 
 #define SAMPLES 100
