@@ -1,4 +1,5 @@
-#include <cinder/app/AppNative.h>
+#include <cinder\app\AppNative.h>
+#include <vector>
 
 #define KB_KEYS 350
 #define M_KEYS 5
@@ -41,7 +42,6 @@ protected:
 
 	vector<vector<bool>> _kbKeys;
 	vector<vector<bool>> _mKeys;
-
 
 	int _getMouseButton(MouseEvent event);
 };

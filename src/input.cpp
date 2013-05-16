@@ -27,10 +27,8 @@ int Input::_getMouseButton(MouseEvent event) {
 		return MouseEvent::RIGHT_DOWN;
 	else if(event.isMiddle())
 		return MouseEvent::MIDDLE_DOWN;
-	else {
-		console() << "fuck" << endl;
+	else 
 		return -1;
-	}
 }
 
 void Input::keyDown(KeyEvent event) {
