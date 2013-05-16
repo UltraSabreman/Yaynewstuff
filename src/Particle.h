@@ -68,7 +68,8 @@ void Particle::update(bool Paused) {
 
 void Particle::draw(bool isSelected) {
 	gl::color(_col);
-	gl::drawSolidCircle(_pos, _radius);
+	//gl::drawSolidCircle(_pos, _radius);
+	gl::drawSphere(Vec3f(0,0, 0), _radius);
 	gl::draw(_path);
 	if (isSelected) {
 		gl::color(Color(1.0, 1.0, 1.0));
