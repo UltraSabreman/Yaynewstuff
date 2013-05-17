@@ -4,7 +4,11 @@
 #include <cinder\gl\gl.h>
 
 #include <cinder\Camera.h>
+#include <cinder\MayaCamUI.h>
+#include <cinder\gl\GlslProg.h>
+
 #include <cinder\params\Params.h>
+#include <cinder\gl\Light.h>
 
 #include "ParticleController.h"
 
@@ -34,12 +38,16 @@ protected:
 
 	Input mainIO;
 	
-	CameraPersp myCamera;
+	MayaCamUI myCamera;
+
+	gl::GlslProg	mShader;
+
 	params::InterfaceGlRef myParams;
 	Quatf mSceneRotation;
 	float mCameraDistance; //quaternions yay!
 
 	Vec3f mEye, mCenter, mUp;
+
 	bool pause;
 };
 
@@ -56,12 +64,18 @@ void YaynewstuffApp::setup() {
 	mEye = Vec3f( 0.0f, 0.0f, mCameraDistance ); //eye Position,
 	mCenter = Vec3f::zero(); //Eye dir
 	mUp = Vec3f::yAxis(); //camera up
-	myCamera.setPerspective(75.0f, getWindowAspectRatio(), 5.0f, 2000.0f);
+
+	mShader = gl::GlslProg( loadAsset("resources/phong_vert.glsl"), loadAsset("resources/phong_frag.glsl") );
+
+	CameraPersp cam;
+	cam.setPerspective(75.0f, getWindowAspectRatio(), 5.0f, 2000.0f);
+	cam.setEyePoint(mEye);
+	cam.setCenterOfInterestPoint(Vec3f::zero());
+	myCamera.setCurrentCam(cam);
 		//Field of fiew, apsect ration, near clipping plane, far cipping plane
 
-	myParams = params::InterfaceGl::create( "Flocking", Vec2i( 225, 200 ) );
-	myParams->addParam( "Scene Rotation", &mSceneRotation, "opened=1" );
-	myParams->addParam( "Eye Distance", &mCameraDistance, "min=50.0 max=1000.0 step=50.0 keyIncr=s keyDecr=w" );
+	//myLight = gl::Light(gl::Light::POINT, 1);
+	//myLight.enable();
 
 	parts = ParticleController(&mainIO);
 }
@@ -91,22 +105,30 @@ void YaynewstuffApp::update() {
 		parts.removeAllParticles();
 
 	// UPDATE CAMERA
-	mEye = Vec3f( 0.0f, 0.0f, mCameraDistance );
+	/*mEye = Vec3f( 0.0f, 0.0f, mCameraDistance );
 	myCamera.lookAt( mEye, mCenter, mUp );
 	gl::setMatrices( myCamera );
-	gl::rotate( mSceneRotation );
+	gl::rotate( mSceneRotation );*/
+
+	//myLight.lookAt(Vec3f(0,100, 100), Vec3f::zero());
+	//myLight.update(myCamera);
 }
 
 
 void YaynewstuffApp::draw() {
-	gl::clear( Color( 0, 0, 0.01f ), true );
+	gl::clear( Colorf(0.5f, 0.5f, 0.5f) );
+	gl::pushMatrices();
+	gl::setMatrices( myCamera.getCamera() );
+
 	gl::enableDepthRead();
 	gl::enableDepthWrite();
+
+
 	parts.draw();
 
 	glColor4f( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	//gl::drawString("FPS: " + toString(getAverageFps()), Vec2f(0,0), Color(1.0, 1.0, 1.0), myFont);
-	myParams->draw();
+	
 }
 
 CINDER_APP_NATIVE(YaynewstuffApp, RendererGl)
