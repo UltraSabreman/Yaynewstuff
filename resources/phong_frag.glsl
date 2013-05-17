@@ -30,5 +30,5 @@ void main()
 	Ispec = clamp(Ispec, 0.0, 1.0); 
 
 	// final color 
-	gl_FragColor = Iamb + Idiff + Ispec;	
+	gl_FragColor = Iamb + Ispec;//Idiff + Ispec;	
 }

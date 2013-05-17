@@ -11,6 +11,7 @@
 #include <cinder\gl\Light.h>
 
 #include "ParticleController.h"
+#include "Resources.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -22,13 +23,22 @@ public:
 	void prepareSettings(Settings *settings);
 
 	//Pass all input to input class to be handed there.
-	void mouseDown(MouseEvent event)	{ mainIO.mouseDown(event); }	
+	void mouseDown(MouseEvent event)	{ myCamera.mouseDown(event.getPos()); mainIO.mouseDown(event); }	
 	void mouseUp(MouseEvent event)		{ mainIO.mouseUp(event); }	
 	void keyUp(KeyEvent event)			{ mainIO.keyUp(event); }
 	void keyDown(KeyEvent event)		{ mainIO.keyDown(event); }
 	void mouseMove(MouseEvent event)	{ mainIO.mouseMove(event); }
-	void mouseDrag(MouseEvent event)	{ mainIO.mouseDrag(event); }
+	void mouseDrag(MouseEvent event)	{ myCamera.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() ); mainIO.mouseDrag(event); }
 	void mouseWheel(MouseEvent event)	{ mainIO.mouseWheel(event); }
+
+	void resize()
+	{
+	// adjust aspect ratio
+		CameraPersp cam = myCamera.getCamera();
+		cam.setAspectRatio( getWindowAspectRatio() );
+		myCamera.setCurrentCam( cam );
+	}
+
 
 	void update();
 	void draw();
@@ -65,7 +75,7 @@ void YaynewstuffApp::setup() {
 	mCenter = Vec3f::zero(); //Eye dir
 	mUp = Vec3f::yAxis(); //camera up
 
-	mShader = gl::GlslProg( loadAsset("resources/phong_vert.glsl"), loadAsset("resources/phong_frag.glsl") );
+	mShader = gl::GlslProg( loadResource( RES_SHADER_VERT ), loadResource( RES_SHADER_FRAG ) );
 
 	CameraPersp cam;
 	cam.setPerspective(75.0f, getWindowAspectRatio(), 5.0f, 2000.0f);
@@ -123,6 +133,9 @@ void YaynewstuffApp::draw() {
 	gl::enableDepthRead();
 	gl::enableDepthWrite();
 
+	mShader.bind();
+
+	mShader.unbind();
 
 	parts.draw();
 

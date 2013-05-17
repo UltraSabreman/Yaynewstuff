@@ -116,6 +116,10 @@
     <ClInclude Include="..\src\Particle.h" />
     <ClInclude Include="..\src\ParticleController.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\resources\phong_frag.glsl" />
+    <None Include="..\resources\phong_vert.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
