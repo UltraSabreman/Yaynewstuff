@@ -60,7 +60,7 @@ void YaynewstuffApp::setup() {
 		//Field of fiew, apsect ration, near clipping plane, far cipping plane
 
 	myParams = params::InterfaceGl::create( "Flocking", Vec2i( 225, 200 ) );
-	myParams->addParam( "Scene Rotation", &mSceneRotation );
+	myParams->addParam( "Scene Rotation", &mSceneRotation, "opened=1" );
 	myParams->addParam( "Eye Distance", &mCameraDistance, "min=50.0 max=1000.0 step=50.0 keyIncr=s keyDecr=w" );
 
 	parts = ParticleController(&mainIO);
@@ -102,10 +102,12 @@ void YaynewstuffApp::draw() {
 	gl::clear( Color( 0, 0, 0.01f ), true );
 	gl::enableDepthRead();
 	gl::enableDepthWrite();
-	//parts.draw();
+	parts.draw();
 
 	glColor4f( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	//gl::drawString("FPS: " + toString(getAverageFps()), Vec2f(0,0), Color(1.0, 1.0, 1.0), myFont);
+	myParams->draw();
 }
 
 CINDER_APP_NATIVE(YaynewstuffApp, RendererGl)
+	

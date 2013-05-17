@@ -1,6 +1,5 @@
-#ifndef __LOL__
-#define __LOL__
 #include <cinder\app\AppNative.h>
+#include <cinder\Rand.h>
 #include <vector>
 #include "Particle.h"
 #include "input.h"
@@ -19,6 +18,7 @@ public:
 	ParticleController(Input *l = NULL);
 	void update(bool pausePhysics, Vec2f newPos = Vec2f());
 	void addParticle(Vec2f pos);
+	void addParticles(int num);
 	Particle* getParticle(Vec2f pos);
 	void removeParticle(Particle *tar);
 	void removeAllParticles();
@@ -73,22 +73,22 @@ void ParticleController::update(bool pausePhysics, Vec2f newPos) {
 			
 		//Do Force calculations
 		if (!pausePhysics) {
-			Vec2f AvgForce(0.0, 0.0);
+			Vec3f AvgForce(0.0, 0.0, 0.0);
 			for (int l = 0; l < size; l++) {
 				Particle *part2 = _particles[l];
 				if (part1 == part2) continue; 
 				//Calculate unit direction vector form particle 1, to particle 2.
-				Vec2f dirVec = (part1->getPos() - part2->getPos()).safeNormalized();
+				Vec3f dirVec = (part1->getPos() - part2->getPos()).safeNormalized();
 				//Get force vector using Newtons law of universal gravitation in vector form (G_ is the gravitational constant);
 				AvgForce = -G_ * ((part1->getMass() * part2->getMass()) / pow(dirVec.length(), 2)) * dirVec;
 			}
 
-			AvgForce *= FORCE_MUL; // to amke teh force actualy noticible.
+			AvgForce *= -FORCE_MUL; // to amke teh force actualy noticible.
 			if (!part1->forceSet) {
 				if (size > 1) 
 					part1->force = (AvgForce / (size - 1));
 				else
-					part1->force = Vec2f(0.0,0.0);
+					part1->force = Vec3f(0.0, 0.0,0.0);
 			}else
 				part1->forceSet = false;
 				
@@ -105,7 +105,7 @@ void ParticleController::update(bool pausePhysics, Vec2f newPos) {
 			float newMass = _target->getMass() + (_mainIO->getWheelSpin() * massDelta);
 			part1->setMass(newMass);
 
-			part1->force = (newPos - part1->getPos()) * 10;
+			//part1->force = (newPos - part1->getPos()) * 10;
 			part1->forceSet = true;
 			
 		}
@@ -128,13 +128,17 @@ void ParticleController::removeAllParticles() {
 }
 
 void ParticleController::addParticle(Vec2f pos) {
-	_particles.push_back(new Particle(pos));
+	_particles.push_back(new Particle(Vec3f(0.0,0.0,0.0)));
+}
+void ParticleController::addParticles(int num) {
+	for (int i = 0; i < num; i++)
+		_particles.push_back(new Particle(Rand::randVec3f() * 100));
 }
 
 Particle* ParticleController::getParticle(Vec2f pos) {
 	int size = _particles.size();
 	for (int i = 0; i < size; i++) {
-		if (_particles[i]->getPos().distance(pos) <= _particles[i]->getRadius()) {
+		if (_particles[i]->getPos().distance(Vec3f(0.0,0.0,0.0)) <= _particles[i]->getRadius()) {
 			_target = _particles[i];
 			return _target;
 		}
@@ -157,5 +161,3 @@ void ParticleController::_eraseParticle(unsigned int loc) {
 	advance(part, loc);
 	_particles.erase(part);
 }
-
-#endif
