@@ -146,11 +146,11 @@ void YaynewstuffApp::draw() {
 	gl::enableDepthRead();
 	gl::enableDepthWrite();
 
-	mShader.bind();
+	//mShader.bind();
 
 		parts.draw();
 
-	mShader.unbind();
+	//mShader.unbind();
 	glColor4f( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	//gl::drawString("FPS: " + toString(getAverageFps()), Vec2f(0,0), Color(1.0, 1.0, 1.0), myFont);
 	
