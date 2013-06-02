@@ -58,6 +58,8 @@ protected:
 
 	Vec3f mEye, mCenter, mUp;
 
+	GLuint pmat, vmat;
+
 	bool pause;
 };
 
@@ -75,7 +77,16 @@ void YaynewstuffApp::setup() {
 	mCenter = Vec3f::zero(); //Eye dir
 	mUp = Vec3f::yAxis(); //camera up
 
-	mShader = gl::GlslProg( loadResource( RES_SHADER_VERT ), loadResource( RES_SHADER_FRAG ) );
+	try {
+		mShader = gl::GlslProg( loadResource( RES_SHADER_VERT ), loadResource( RES_SHADER_FRAG ) );
+	} catch(gl::GlslProgCompileExc shaderError) {
+		console() << "Shader Compile error:" << endl;
+		console() << shaderError.what() << endl;
+	}
+
+	//vmat = mShader.getUniformLocation("viewMatrix");
+	//pmat = mShader.getUniformLocation("projMatrix");
+
 
 	CameraPersp cam;
 	cam.setPerspective(75.0f, getWindowAspectRatio(), 5.0f, 2000.0f);
@@ -122,11 +133,13 @@ void YaynewstuffApp::update() {
 
 	//myLight.lookAt(Vec3f(0,100, 100), Vec3f::zero());
 	//myLight.update(myCamera);
+
+	//pmat = myCamera.getCamera().
 }
 
 
 void YaynewstuffApp::draw() {
-	gl::clear( Colorf(0.5f, 0.5f, 0.5f) );
+	gl::clear( Colorf(0.0f, 0.0f, 0.0f) );
 	gl::pushMatrices();
 	gl::setMatrices( myCamera.getCamera() );
 
@@ -135,10 +148,9 @@ void YaynewstuffApp::draw() {
 
 	mShader.bind();
 
+		parts.draw();
+
 	mShader.unbind();
-
-	parts.draw();
-
 	glColor4f( ColorA( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	//gl::drawString("FPS: " + toString(getAverageFps()), Vec2f(0,0), Color(1.0, 1.0, 1.0), myFont);
 	
