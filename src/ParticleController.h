@@ -1,5 +1,3 @@
-#ifndef __LOL__
-#define __LOL__
 #include <cinder\app\AppNative.h>
 #include <vector>
 #include "Particle.h"
@@ -157,5 +155,3 @@ void ParticleController::_eraseParticle(unsigned int loc) {
 	advance(part, loc);
 	_particles.erase(part);
 }
-
-#endif
